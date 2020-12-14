@@ -19,14 +19,24 @@ const Keyboard={
        this.elements.keysContainer = document.createElement("div");
        
        //Setup elements
-       this.elements.main.classList.add("keyboard", "1keyboard--hidden");
+       this.elements.main.classList.add("keyboard", "keyboard--hidden");
        this.elements.keysContainer.classList.add("keyboard__keys");
        this.elements.keysContainer.appendChild(this._createKeys());
 
+       this.elements.keys = this.elements.keysContainer.querySelectorAll(".keyboard__key")
        //Add to DOM
        this.elements.main.appendChild(this.elements.keysContainer);
        document.body.appendChild(this.elements.main);
  
+       //Automatically use keyboard for elements with .use-keyboard-input
+       document.querySelectorAll(".use-keyboard-input").forEach(element =>{
+           element.addEventListener("focus",() =>{
+               this.open(element.value, currentValue=>{
+                  element.value = currentValue;
+               })
+           })
+       })
+
     },
     _createKeys(){
        
@@ -59,7 +69,7 @@ const Keyboard={
                     keyElement.innerHTML = createIconHTML("backspace");
                     
                     keyElement.addEventListener("click",()=>{
-                        this.properties.value = this.properties.value.substring(0, this.properties.value.length -1);
+                        this.properties.value = this.properties.value.substring(0, this.properties.value.length - 1);
                         this._triggerEvent("oninput");
                     });
 
@@ -114,7 +124,7 @@ const Keyboard={
                     keyElement.textContent =key.toLowerCase();
                     
                     keyElement.addEventListener("click",()=>{
-                        this.properties.value = this.properties.capsLock ? key.toUpperCase() : key.toLocaleLowerCase();
+                        this.properties.value += this.properties.capsLock ? key.toUpperCase() : key.toLowerCase();
                         this._triggerEvent("oninput");                 
                        });
                 break;
@@ -123,7 +133,6 @@ const Keyboard={
 
             if(insertLineBreak){
                 fragment.appendChild(document.createElement("br"))
-
             }
         });
        
@@ -131,21 +140,36 @@ const Keyboard={
     },
 
     _triggerEvent(handlerName){
-        console.log("event triggered! Event name "+handlerName)
+        if(typeof this.eventHandelers[handlerName]== "function"){
+            this.eventHandelers[handlerName](this.properties.value);
+        }
     },
 
     _toggleCapsLock(){
-        console.log("Caps lock Toggled!")
+        this.properties.capsLock = !this.properties.capsLock
+
+        for(const key of this.elements.keys){
+            if(key.childElementCount === 0 ){
+                key.textContent = this.properties.capsLock ? key.textContent.toUpperCase():key.textContent.toLocaleLowerCase()
+            }
+        }
     },
 
     open(initialValue, oninput, onclose){
-
+        this.properties.value = initialValue || "";
+        this.eventHandelers.oninput = oninput;
+        this.eventHandelers.onclose = onclose;
+        this.elements.main.classList.remove("keyboard--hiden");
     },
 
     close(){
-
+        this.properties.value="";
+        this.eventHandelers.oninput = oninput;
+        this.eventHandelers.onclose = onclose;
+        this.elements.main.classList.add("keyboard--hiden")
     }
 };
 window.addEventListener("DOMContentLoaded", function(){
     Keyboard.init();
-})
+
+});
