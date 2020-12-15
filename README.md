@@ -6,7 +6,7 @@ Virtual Keyboard written in html, css,javascript
 
 click buttons
 dynamic keyboard
-move around textbox using TAB or directly click on a textbox (require subclassing as in the provided example)
 numeric keyboard
+hide keyboard by presing enter and show by clicking the input
 
 link to the deployed project(https://rigelselmani.github.io/Key-board-js/)
